@@ -5,10 +5,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
-    host: true,          // makes it accessible on local network too
-    open: true,          // auto-opens browser on npm run dev
+    host: true,   // accessible on local network
+    open: true,   // auto-opens browser on npm run dev
     proxy: {
-      // All /api/* calls → Express backend on :5000
+      // LOCAL DEV ONLY — proxies /api/* → Express backend on :5000
+      // In production (Vercel), set VITE_API_URL env var instead.
       '/api': {
         target: 'http://localhost:5001',
         changeOrigin: true,

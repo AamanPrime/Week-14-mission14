@@ -9,23 +9,39 @@ const taskRoutes = require('./routes/tasks');
 const app = express();
 
 
-const allowedOrigins = [
+const staticOrigins = [
   'http://localhost:3000',
   'http://127.0.0.1:3000',
-  process.env.CLIENT_URL,
-].filter(Boolean);
+];
 
-app.use(cors({
+const envOrigins = (process.env.CLIENT_URL || '')
+  .split(',')
+  .map((u) => u.trim())
+  .filter(Boolean);
+
+const allowedOrigins = [...staticOrigins, ...envOrigins];
+
+const vercelPattern = /^https:\/\/[a-zA-Z0-9-]+(\.vercel\.app)$/;
+
+const corsOptions = {
   origin: (origin, callback) => {
-  
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error(`CORS blocked: ${origin}`));
+    
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin) || vercelPattern.test(origin)) {
+      return callback(null, true);
     }
+
+    callback(new Error(`CORS blocked: ${origin}`));
   },
   credentials: true,
-}));
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
 
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true }));

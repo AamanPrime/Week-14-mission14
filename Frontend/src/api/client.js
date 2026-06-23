@@ -1,5 +1,15 @@
 
-const BASE_URL = import.meta.env.VITE_API_URL || '/api';
+
+const BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
+
+if (import.meta.env.PROD && !import.meta.env.VITE_API_URL) {
+  console.error(
+    '[client.js] ⚠️  VITE_API_URL is not set! ' +
+    'All API requests will fail in production. ' +
+    'Add VITE_API_URL=https://<your-render-app>.onrender.com/api to your Vercel environment variables.'
+  );
+}
+
 const TOKEN_KEY = 'auth_token';
 
 
